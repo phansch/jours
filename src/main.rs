@@ -3,6 +3,25 @@ extern crate chrono;
 use clap::{Arg, App};
 use std::io::Write;
 use std::fs::{OpenOptions};
+use chrono::prelude::*;
+
+struct NewEntry {
+    value: String,
+    datetime: DateTime<Local>
+}
+
+impl NewEntry {
+    fn new(value: &str) -> NewEntry {
+        NewEntry {
+            value: value.to_string(),
+            datetime: Local::now()
+        }
+    }
+
+    fn formatted_line(&self) -> String {
+        format!("* {}: {}\n", self.datetime.format("%X"), self.value)
+    }
+}
 
 fn main() {
     let matches = App::new("jours")
@@ -28,15 +47,14 @@ fn add_to_file(value: &str) {
         .create(true)
         .append(true)
         .open("/tmp/foo").unwrap();
-    let value = formatted_line(value);
+    let new_entry = NewEntry::new(value);
+    let value = new_entry.formatted_line();
     file.write_all(value.as_bytes()).unwrap();
-}
-
-fn formatted_line(value: &str) -> String {
-    format!("* {}\n", value)
 }
 
 #[test]
 fn test_formatted_line() {
-    assert_eq!("* test\n", formatted_line("test"));
+    let now = Local::now().format("%X");
+    let expected = format!("* {}: test\n", now);
+    assert_eq!(expected, NewEntry::new("test").formatted_line());
 }

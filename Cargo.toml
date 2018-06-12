@@ -5,3 +5,4 @@ authors = ["Philipp Hansch <dev@phansch.net>"]
 
 [dependencies]
 clap = "~2.31"
+chrono = "0.4"
