@@ -1,0 +1,23 @@
+---
+language: rust
+
+cache: cargo
+
+# We also make sure that everything works on beta and nightly.
+rust:
+  - stable
+  - beta
+  - nightly
+matrix:
+  allow_failures:
+    - rust: nightly
+
+branches:
+  only:
+    - master
+    - staging
+    - trying
+
+script:
+  - cargo build
+  - cargo test --verbose
