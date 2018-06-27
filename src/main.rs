@@ -1,9 +1,15 @@
 extern crate clap;
 extern crate chrono;
-use clap::{Arg, App};
+extern crate config;
+extern crate directories;
+
+mod settings;
+
 use std::io::Write;
 use std::fs::{OpenOptions};
 use chrono::prelude::*;
+use clap::{Arg, App};
+use settings::Settings;
 
 struct NewEntry {
     value: String,
@@ -24,6 +30,7 @@ impl NewEntry {
 }
 
 fn main() {
+    let settings = Settings::new();
     let matches = App::new("jours")
         .version("0.0.1")
         .author("Philipp Hansch <dev@phansch.net>")
