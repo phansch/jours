@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use directories::ProjectDirs;
-use config::{Config, File};
+use config::{Config, ConfigError, File};
 use std::process;
 
 pub struct Settings {
@@ -30,8 +30,30 @@ impl Settings {
                     None => panic!("config.toml doesn't include 'journal_dir' key")
                 }
             },
-            Err(_) => {
-                eprintln!("Please provide a valid {}", config_file_name);
+            Err(err) => {
+                match err {
+                    ConfigError::Frozen => {
+                        eprintln!("Configuration was frozen and could not be modified");
+                    }
+                    ConfigError::NotFound(prop) => {
+                        eprintln!("Configuration property '{}' not found", prop);
+                    },
+                    ConfigError::PathParse(error_kind) => {
+                        eprintln!("Could not parse path for reason: {}", error_kind.description());
+                    },
+                    ConfigError::FileParse { uri, cause } => {
+                        eprintln!("Configuration could not be parsed from file: '{}', cause: {}", uri.unwrap(), cause);
+                    },
+                    ConfigError::Type { origin, unexpected, expected, key } => {
+                        eprintln!("Found '{}' but exectped '{}' for key '{}'", unexpected, expected, key.unwrap())
+                    },
+                    ConfigError::Message(msg) => {
+                        eprintln!("Configuration property '{}' not found", msg);
+                    },
+                    ConfigError::Foreign(err) => {
+                        eprintln!("Error: {}", err);
+                    }
+                }
                 process::exit(1);
             }
         }
